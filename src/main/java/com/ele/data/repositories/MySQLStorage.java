@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class MySQLStorage {
+public class MySQLStorage implements SystemStorage {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySQLStorage.class);
 
@@ -23,7 +23,7 @@ public class MySQLStorage {
 
     private ObjectPool pool;
 
-    private final ShopRepository shopRopo;
+    private final ShopRepository shopRepo;
 
     @Inject
     public MySQLStorage (
@@ -42,7 +42,7 @@ public class MySQLStorage {
         migrate();
         createPool();
 
-        shopRopo = new ShopRepository(this.pool);
+        shopRepo = new ShopRepository(this.pool);
 
     }
 
@@ -68,4 +68,8 @@ public class MySQLStorage {
         this.pool = genericObjectPoolFactory.createPool();
     }
 
+    @Override
+    public ShopRepository getShopRepository() {
+        return this.shopRepo;
+    }
 }

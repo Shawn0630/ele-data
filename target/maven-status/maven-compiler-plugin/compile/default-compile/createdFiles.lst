@@ -1,4 +1,8 @@
+com/ele/data/repositories/RepositoryException.class
 com/ele/data/repositories/MySQLPoolFactory.class
 com/ele/data/repositories/MySQLRepository.class
 com/ele/data/repositories/MySQLStorage.class
+com/ele/data/utils/EleDateFormat.class
+com/ele/data/repositories/MySQLCRUDRepository.class
+com/ele/data/repositories/SystemStorage.class
 com/ele/data/repositories/ShopRepository.class
