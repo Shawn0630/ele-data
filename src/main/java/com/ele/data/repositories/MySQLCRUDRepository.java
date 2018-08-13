@@ -6,7 +6,6 @@ import com.google.protobuf.util.JsonFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +27,6 @@ public class MySQLCRUDRepository {
         }
     }
     protected <T extends GeneratedMessageV3> String protoArrayToJson(List<T> objs) {
-        return "[" + String.join("," + objs.stream().map(t -> protoToJson(t)).collect(Collectors.toList())) + "]";
+        return objs.stream().map(t -> protoToJson(t)).collect(Collectors.toList()).toString();
     }
 }

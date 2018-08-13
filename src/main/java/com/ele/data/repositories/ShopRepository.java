@@ -44,7 +44,6 @@ public class ShopRepository extends MySQLCRUDRepository{
         return CompletableFuture.supplyAsync(() -> {
             try (Connection conn = (Connection) connPool.borrowObject()) {
                 try (PreparedStatement stmt = conn.prepareStatement(sql)){
-                    System.out.println(protoArrayToJson(shop.getShopActivityList()));
                     List<Promotion> promotions = shop.getShopActivityList();
                     stmt.setObject(1, shop.getId());
                     stmt.setObject(2, shop.getShopName());
