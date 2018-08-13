@@ -3,11 +3,11 @@ package com.ele.data.repositories;
 import com.github.racc.tscg.TypesafeConfig;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.apache.commons.pool.ObjectPool;
+import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.commons.pool.impl.GenericObjectPoolFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
 
 @Singleton
 public class MySQLStorage {
@@ -18,6 +18,8 @@ public class MySQLStorage {
     private final String url;
     private final String username;
     private final String password;
+
+    private final ShopRepository shopRopo;
 
     @Inject
     public MySQLStorage (
@@ -31,14 +33,21 @@ public class MySQLStorage {
         this.username = username;
         this.password = password;
 
-        try {
-            Class.forName(driverClass);
-            Connection con = DriverManager.getConnection(url, username, password);
-            LOG.info("Connected to mysql");
-        } catch (Exception e) {
-            LOG.info("Unable to connect to mysql");
-            System.out.println(e);
-        }
+        MySQLPoolFactory mySQLPoolFactory = new MySQLPoolFactory(driverClass, url, username, password);
+
+        GenericObjectPool.Config config = new GenericObjectPool.Config();
+        config.maxActive = 10;
+        config.testOnBorrow = true;
+        config.testWhileIdle = true;
+        config.timeBetweenEvictionRunsMillis = 10000;
+        config.minEvictableIdleTimeMillis = 60000;
+
+
+        GenericObjectPoolFactory genericObjectPoolFactory = new GenericObjectPoolFactory(mySQLPoolFactory, config);
+        ObjectPool pool = genericObjectPoolFactory.createPool();
+
+        shopRopo = new ShopRepository(pool);
 
     }
+
 }
