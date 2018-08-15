@@ -5,17 +5,16 @@ import com.ele.model.dto.ele.Promotion;
 import com.ele.model.dto.ele.ShopProfile;
 import com.google.protobuf.util.JsonFormat;
 import org.apache.commons.pool.ObjectPool;
+import org.json.JSONArray;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public class ShopRepository extends MySQLCRUDRepository{
+public class ShopRepository extends MySQLCRUDRepository {
 
     private static final String TABLE_NAME = "shop";
     private static final String SHOP_ID = "shop_id";
@@ -32,7 +31,29 @@ public class ShopRepository extends MySQLCRUDRepository{
     private final ObjectPool connPool;
 
     ShopRepository(ObjectPool connPool) {
+        super(connPool);
         this.connPool = connPool;
+    }
+
+    @Override
+    protected ShopProfile parse(ResultSet rs) throws Exception {
+        ShopProfile.Builder builder = ShopProfile.newBuilder()
+                .setId(rs.getString(SHOP_ID))
+                .setShopName(rs.getString(SHOP_NAME))
+                .setIsBird(rs.getBoolean(IS_BIRD))
+                .setIsInsurance(rs.getBoolean(IS_INSURANCE))
+                .setIsBrand(rs.getBoolean(IS_BRAND))
+                .setNeedtip(rs.getBoolean(NEED_TIP));
+
+        String promotionsJson = rs.getString(PROMOTION);
+        JSONArray array = new JSONArray(promotionsJson);
+        for (int i = 0; i < array.length(); i++) {
+            final Promotion.Builder promotionBuilder = Promotion.newBuilder();
+            JsonFormat.parser().ignoringUnknownFields().merge(array.getJSONObject(i).toString(), promotionBuilder);
+            builder.addShopActivity(promotionBuilder.build());
+        }
+
+        return builder.build();
     }
 
     public CompletionStage<String> create(ShopProfile shop) {
@@ -43,8 +64,7 @@ public class ShopRepository extends MySQLCRUDRepository{
 
         return CompletableFuture.supplyAsync(() -> {
             try (Connection conn = (Connection) connPool.borrowObject()) {
-                try (PreparedStatement stmt = conn.prepareStatement(sql)){
-                    List<Promotion> promotions = shop.getShopActivityList();
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                     stmt.setObject(1, shop.getId());
                     stmt.setObject(2, shop.getShopName());
                     stmt.setObject(3, EleDateFormat.getCurrentDate());
@@ -56,11 +76,35 @@ public class ShopRepository extends MySQLCRUDRepository{
                     stmt.setObject(9, shop.getNeedtip());
                     stmt.setObject(10, protoArrayToJson(shop.getShopActivityList()));
                     stmt.executeUpdate();
+
+                    close(conn);
                     return shop.getId();
                 }
             } catch (Exception e) {
                 throw new RepositoryException("Error creating shop", e);
             }
+        });
+    }
+
+    public CompletionStage<List<ShopProfile>> getAll() {
+        String sql = "SELECT * FROM " + TABLE_NAME;
+        return CompletableFuture.supplyAsync(() -> {
+             try (Connection conn = (Connection) connPool.borrowObject()) {
+                 List<ShopProfile> list = new ArrayList<>();
+                 try (Statement stmt = conn.createStatement()) {
+                     try (ResultSet rs = stmt.executeQuery(sql)) {
+                         while (rs.next()) {
+                            list.add(parse(rs));
+                         }
+                     }
+
+                 }
+                 close(conn);
+                 return list;
+             } catch (Exception e) {
+                 System.out.println(e);
+                 throw new RepositoryException("Error getting all shops", e);
+             }
         });
     }
 }
