@@ -1,10 +1,10 @@
 package com.ele.data.repositories;
 
 import com.ele.data.utils.EleDateFormat;
+import com.ele.data.utils.ShopUtils;
 import com.ele.model.dto.ele.Promotion;
 import com.ele.model.dto.ele.ShopProfile;
 import com.google.protobuf.util.JsonFormat;
-import org.apache.commons.pool.ObjectPool;
 import org.json.JSONArray;
 
 import javax.sql.DataSource;
@@ -20,6 +20,7 @@ public class ShopRepository extends MySQLCRUDRepository {
     private static final String TABLE_NAME = "shop";
     private static final String SHOP_ID = "shop_id";
     private static final String SHOP_NAME = "shop_name";
+    private static final String SHOP_URL = "shop_url";
     private static final String DATE_OF_REGISTRATION = "date_of_registration";
     private static final String LAT = "lat";
     private static final String LNG = "lng";
@@ -40,7 +41,10 @@ public class ShopRepository extends MySQLCRUDRepository {
     protected ShopProfile parse(ResultSet rs) throws Exception {
         ShopProfile.Builder builder = ShopProfile.newBuilder()
                 .setId(rs.getString(SHOP_ID))
+                .setImgUrl(rs.getString(SHOP_URL))
+                .setIsNewShop(ShopUtils.isNewShop(rs.getDate(DATE_OF_REGISTRATION)))
                 .setShopName(rs.getString(SHOP_NAME))
+                .setIsNewShop(ShopUtils.isNewShop(rs.getDate(DATE_OF_REGISTRATION)))
                 .setIsBird(rs.getBoolean(IS_BIRD))
                 .setIsInsurance(rs.getBoolean(IS_INSURANCE))
                 .setIsBrand(rs.getBoolean(IS_BRAND))

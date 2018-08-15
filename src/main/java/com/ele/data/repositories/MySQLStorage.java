@@ -52,16 +52,16 @@ public class MySQLStorage implements SystemStorage {
     }
 
     private BasicDataSource createDataSource() {
-            BasicDataSource ds = new BasicDataSource();
-            ds.setUrl(this.url);
-            ds.setUsername(this.username);
-            ds.setPassword(this.password);
+        BasicDataSource ds = new BasicDataSource();
+        ds.setUrl(this.url);
+        ds.setUsername(this.username);
+        ds.setPassword(this.password);
 
-            ds.setMinIdle(5);
-            ds.setMaxIdle(10);
-            ds.setMaxOpenPreparedStatements(100);
+        ds.setMinIdle(5);
+        ds.setMaxIdle(10);
+        ds.setMaxOpenPreparedStatements(100);
 
-            return ds;
+        return ds;
     }
 
     @Override
