@@ -3,9 +3,7 @@ package com.ele.data.repositories;
 import com.github.racc.tscg.TypesafeConfig;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.apache.commons.pool.ObjectPool;
-import org.apache.commons.pool.impl.GenericObjectPool;
-import org.apache.commons.pool.impl.GenericObjectPoolFactory;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +19,7 @@ public class MySQLStorage implements SystemStorage {
     private final String password;
     private final String migrationLocation;
 
-    private ObjectPool pool;
+    private final BasicDataSource dataSource;
 
     private final ShopRepository shopRepo;
 
@@ -40,9 +38,9 @@ public class MySQLStorage implements SystemStorage {
         this.migrationLocation = migrationLocation;
 
         migrate();
-        createPool();
+        this.dataSource = createDataSource();
 
-        shopRepo = new ShopRepository(this.pool);
+        shopRepo = new ShopRepository(this.dataSource);
 
     }
 
@@ -53,19 +51,17 @@ public class MySQLStorage implements SystemStorage {
         flyway.migrate();
     }
 
-    private void createPool() {
-        MySQLPoolFactory mySQLPoolFactory = new MySQLPoolFactory(driverClass, url, username, password);
+    private BasicDataSource createDataSource() {
+            BasicDataSource ds = new BasicDataSource();
+            ds.setUrl(this.url);
+            ds.setUsername(this.username);
+            ds.setPassword(this.password);
 
-        GenericObjectPool.Config config = new GenericObjectPool.Config();
-        config.maxActive = 10;
-        config.testOnBorrow = true;
-        config.testWhileIdle = true;
-        config.timeBetweenEvictionRunsMillis = 10000;
-        config.minEvictableIdleTimeMillis = 60000;
+            ds.setMinIdle(5);
+            ds.setMaxIdle(10);
+            ds.setMaxOpenPreparedStatements(100);
 
-
-        GenericObjectPoolFactory genericObjectPoolFactory = new GenericObjectPoolFactory(mySQLPoolFactory, config);
-        this.pool = genericObjectPoolFactory.createPool();
+            return ds;
     }
 
     @Override

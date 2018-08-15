@@ -8,6 +8,7 @@ import org.apache.commons.pool.ObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,10 +19,10 @@ import java.util.stream.Collectors;
 public abstract class MySQLCRUDRepository<T extends GeneratedMessageV3> {
     private static final Logger LOG = LoggerFactory.getLogger(MySQLCRUDRepository.class);
 
-    private final ObjectPool connPool;
+    private final DataSource source;
 
-    MySQLCRUDRepository(ObjectPool connPool) {
-        this.connPool = connPool;
+    MySQLCRUDRepository(DataSource source) {
+        this.source = source;
     }
 
     protected String getColumnNames(List<String> columns) {
@@ -41,37 +42,6 @@ public abstract class MySQLCRUDRepository<T extends GeneratedMessageV3> {
     }
     protected String protoArrayToJson(List<T> objs) {
         return objs.stream().map(t -> protoToJson(t)).collect(Collectors.toList()).toString();
-    }
-
-    protected void close(Connection conn) {
-        if (conn != null) {
-            try {
-                connPool.returnObject(conn);
-            }
-            catch (Exception e) {
-                LOG.error("Failed to return the connection to the pool", e);
-            }
-        }
-    }
-
-    protected void close(ResultSet res) {
-        if (res != null) {
-            try {
-                res.close();
-            } catch (SQLException e) {
-                LOG.error("Failed to close databse resultset", e);
-            }
-        }
-    }
-
-    protected void close(Statement st) {
-        if (st != null) {
-            try {
-                st.close();
-            } catch (SQLException e) {
-                LOG.error("Failed to close databse statment", e);
-            }
-        }
     }
 
     protected abstract T parse(ResultSet rs) throws Exception;

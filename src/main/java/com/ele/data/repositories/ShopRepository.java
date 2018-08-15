@@ -7,6 +7,7 @@ import com.google.protobuf.util.JsonFormat;
 import org.apache.commons.pool.ObjectPool;
 import org.json.JSONArray;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,11 +29,11 @@ public class ShopRepository extends MySQLCRUDRepository {
     private static final String NEED_TIP = "need_tip";
     private static final String PROMOTION = "promotion";
 
-    private final ObjectPool connPool;
+    private final DataSource source;
 
-    ShopRepository(ObjectPool connPool) {
-        super(connPool);
-        this.connPool = connPool;
+    ShopRepository(DataSource source) {
+        super(source);
+        this.source = source;
     }
 
     @Override
@@ -63,7 +64,7 @@ public class ShopRepository extends MySQLCRUDRepository {
                 + "VALUES(" + getQuestionMarks(columns) + ")";
 
         return CompletableFuture.supplyAsync(() -> {
-            try (Connection conn = (Connection) connPool.borrowObject()) {
+            try (Connection conn = source.getConnection()) {
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                     stmt.setObject(1, shop.getId());
                     stmt.setObject(2, shop.getShopName());
@@ -77,7 +78,6 @@ public class ShopRepository extends MySQLCRUDRepository {
                     stmt.setObject(10, protoArrayToJson(shop.getShopActivityList()));
                     stmt.executeUpdate();
 
-                    close(conn);
                     return shop.getId();
                 }
             } catch (Exception e) {
@@ -89,7 +89,7 @@ public class ShopRepository extends MySQLCRUDRepository {
     public CompletionStage<List<ShopProfile>> getAll() {
         String sql = "SELECT * FROM " + TABLE_NAME;
         return CompletableFuture.supplyAsync(() -> {
-             try (Connection conn = (Connection) connPool.borrowObject()) {
+             try (Connection conn = source.getConnection()) {
                  List<ShopProfile> list = new ArrayList<>();
                  try (Statement stmt = conn.createStatement()) {
                      try (ResultSet rs = stmt.executeQuery(sql)) {
@@ -99,7 +99,6 @@ public class ShopRepository extends MySQLCRUDRepository {
                      }
 
                  }
-                 close(conn);
                  return list;
              } catch (Exception e) {
                  System.out.println(e);
