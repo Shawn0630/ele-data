@@ -63,7 +63,7 @@ public class ShopRepository extends MySQLCRUDRepository {
 
     public CompletionStage<String> create(ShopProfile shop) {
         List<String> columns = Arrays.asList(
-                SHOP_ID, SHOP_NAME, DATE_OF_REGISTRATION, LAT, LNG, IS_BIRD, IS_INSURANCE, IS_BRAND, NEED_TIP, PROMOTION);
+                SHOP_ID, SHOP_NAME, SHOP_URL, DATE_OF_REGISTRATION, LAT, LNG, IS_BIRD, IS_INSURANCE, IS_BRAND, NEED_TIP, PROMOTION);
         String sql = "INSERT INTO " + TABLE_NAME + " (" + getColumnNames(columns) + ") "
                 + "VALUES(" + getQuestionMarks(columns) + ")";
 
@@ -72,14 +72,15 @@ public class ShopRepository extends MySQLCRUDRepository {
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                     stmt.setObject(1, shop.getId());
                     stmt.setObject(2, shop.getShopName());
-                    stmt.setObject(3, EleDateFormat.getCurrentDate());
-                    stmt.setObject(4, 13.0412658);
-                    stmt.setObject(5, 80.2338514);
-                    stmt.setObject(6, shop.getIsBird());
-                    stmt.setObject(7, shop.getIsInsurance());
-                    stmt.setObject(8, shop.getIsBrand());
-                    stmt.setObject(9, shop.getNeedtip());
-                    stmt.setObject(10, protoArrayToJson(shop.getShopActivityList()));
+                    stmt.setObject(3, shop.getImgUrl());
+                    stmt.setObject(4, EleDateFormat.getCurrentDate());
+                    stmt.setObject(5, 13.0412658);
+                    stmt.setObject(6, 80.2338514);
+                    stmt.setObject(7, shop.getIsBird());
+                    stmt.setObject(8, shop.getIsInsurance());
+                    stmt.setObject(9, shop.getIsBrand());
+                    stmt.setObject(10, shop.getNeedtip());
+                    stmt.setObject(11, protoArrayToJson(shop.getShopActivityList()));
                     stmt.executeUpdate();
 
                     return shop.getId();
@@ -105,7 +106,6 @@ public class ShopRepository extends MySQLCRUDRepository {
                  }
                  return list;
              } catch (Exception e) {
-                 System.out.println(e);
                  throw new RepositoryException("Error getting all shops", e);
              }
         });
