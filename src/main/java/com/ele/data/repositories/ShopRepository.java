@@ -3,6 +3,7 @@ package com.ele.data.repositories;
 import com.ele.data.utils.EleDateFormat;
 import com.ele.data.utils.ShopUtils;
 import com.ele.model.dto.ele.Promotion;
+import com.ele.model.dto.ele.ShopDetail;
 import com.ele.model.dto.ele.ShopProfile;
 import com.google.protobuf.util.JsonFormat;
 import org.json.JSONArray;
@@ -12,6 +13,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -21,6 +23,12 @@ public class ShopRepository extends MySQLCRUDRepository {
     private static final String SHOP_ID = "shop_id";
     private static final String SHOP_NAME = "shop_name";
     private static final String SHOP_URL = "shop_url";
+    private static final String SHOP_ADDRESS = "shop_address";
+    private static final String SHOP_SERVICE = "shop_service";
+    private static final String SHOP_ANNOUNCEMENT = "shop_announcement";
+    private static final String SHOP_SLOGAN = "shop_slogan";
+    private static final String SHOP_DELIVERY_FEE= "shop_delivery_fee";
+    private static final String SHOP_SEND_THRESHOLD = "shop_send_threshold";
     private static final String DATE_OF_REGISTRATION = "date_of_registration";
     private static final String LAT = "lat";
     private static final String LNG = "lng";
@@ -37,8 +45,7 @@ public class ShopRepository extends MySQLCRUDRepository {
         this.source = source;
     }
 
-    @Override
-    protected ShopProfile parse(ResultSet rs) throws Exception {
+    private ShopProfile parseShopProfile(ResultSet rs) throws Exception {
         ShopProfile.Builder builder = ShopProfile.newBuilder()
                 .setId(rs.getString(SHOP_ID))
                 .setImgUrl(rs.getString(SHOP_URL))
@@ -57,6 +64,16 @@ public class ShopRepository extends MySQLCRUDRepository {
             JsonFormat.parser().ignoringUnknownFields().merge(array.getJSONObject(i).toString(), promotionBuilder);
             builder.addShopActivity(promotionBuilder.build());
         }
+
+        return builder.build();
+    }
+
+    private ShopDetail parseShopDetail(ResultSet rs) throws Exception {
+        ShopDetail.Builder builder = ShopDetail.newBuilder()
+                .setShopImgUrl(rs.getString(SHOP_URL))
+                .setShopAddress(rs.getString(SHOP_ADDRESS))
+                .setShopService(rs.getString(SHOP_SERVICE))
+                .setSlogan(rs.getString(SHOP_SLOGAN))
 
         return builder.build();
     }
@@ -99,7 +116,7 @@ public class ShopRepository extends MySQLCRUDRepository {
                  try (Statement stmt = conn.createStatement()) {
                      try (ResultSet rs = stmt.executeQuery(sql)) {
                          while (rs.next()) {
-                            list.add(parse(rs));
+                            list.add(parseShopProfile(rs));
                          }
                      }
 
@@ -108,6 +125,25 @@ public class ShopRepository extends MySQLCRUDRepository {
              } catch (Exception e) {
                  throw new RepositoryException("Error getting all shops", e);
              }
+        });
+    }
+
+    public CompletionStage<ShopDetail> getByUUID(UUID shop_id) {
+        String sql = "SELECT * FROM " + TABLE_NAME + " WHERE shop_id = " + shop_id.toString();
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection conn = source.getConnection()) {
+                try (Statement stmt = conn.createStatement()) {
+                    try (ResultSet rs = stmt.executeQuery(sql)) {
+                        if (rs.next()) {
+                            return parseShopDetail(rs);
+                        } else {
+                            return null;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                throw  new RepositoryException("Error getting shop " + shop_id, e);
+            }
         });
     }
 }

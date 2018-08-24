@@ -16,7 +16,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class MySQLCRUDRepository<T extends GeneratedMessageV3> {
+public class MySQLCRUDRepository<T extends GeneratedMessageV3> {
     private static final Logger LOG = LoggerFactory.getLogger(MySQLCRUDRepository.class);
 
     private final DataSource source;
@@ -43,7 +43,5 @@ public abstract class MySQLCRUDRepository<T extends GeneratedMessageV3> {
     protected String protoArrayToJson(List<T> objs) {
         return objs.stream().map(t -> protoToJson(t)).collect(Collectors.toList()).toString();
     }
-
-    protected abstract T parse(ResultSet rs) throws Exception;
 
 }
