@@ -73,7 +73,7 @@ public class ShopRepository extends MySQLCRUDRepository {
                 .setShopImgUrl(rs.getString(SHOP_URL))
                 .setShopAddress(rs.getString(SHOP_ADDRESS))
                 .setShopService(rs.getString(SHOP_SERVICE))
-                .setSlogan(rs.getString(SHOP_SLOGAN))
+                .setSlogan(rs.getString(SHOP_SLOGAN));
 
         return builder.build();
     }
