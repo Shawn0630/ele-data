@@ -94,6 +94,31 @@
             <artifactId>slf4j-simple</artifactId>
             <version>${org.slf4j.version}</version>
         </dependency>
+
+        <!-- Cassandra -->
+        <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-core</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-mapping</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hhandoko</groupId>
+            <artifactId>cassandra-migration</artifactId>
+            <version>0.15</version>
+        </dependency>
+
+        <!-- Event Sourcing -->
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-persistence-cassandra_2.12</artifactId>
+            <version>0.91</version>
+        </dependency>
+
     </dependencies>
 
     <build>
