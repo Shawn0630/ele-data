@@ -1,5 +1,6 @@
-package com.ele.data.repositories;
+package com.ele.data.repositories.mysql;
 
+import com.ele.data.repositories.SystemStorage;
 import com.github.racc.tscg.TypesafeConfig;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

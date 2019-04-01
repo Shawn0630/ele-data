@@ -1,5 +1,7 @@
-package com.ele.data.repositories;
+package com.ele.data.repositories.mysql;
 
+import com.ele.data.repositories.RepositoryException;
+import com.ele.data.repositories.mysql.MySQLCRUDRepository;
 import com.ele.data.utils.EleDateFormat;
 import com.ele.data.utils.ShopUtils;
 import com.ele.model.dto.ele.Promotion;

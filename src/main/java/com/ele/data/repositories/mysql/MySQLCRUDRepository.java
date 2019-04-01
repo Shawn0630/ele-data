@@ -1,4 +1,4 @@
-package com.ele.data.repositories;
+package com.ele.data.repositories.mysql;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.util.JsonFormat;

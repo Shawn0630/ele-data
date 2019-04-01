@@ -2,7 +2,7 @@ package com.ele.data.repositories.cassandra;
 
 import akka.actor.ActorSystem;
 import com.datastax.driver.core.ConsistencyLevel;
-import com.ele.data.repositories.ShopRepository;
+import com.ele.data.repositories.mysql.ShopRepository;
 import com.ele.data.repositories.SystemStorage;
 import com.github.racc.tscg.TypesafeConfig;
 import com.hhandoko.cassandra.migration.CassandraMigration;
@@ -19,6 +19,8 @@ public class CassandraStorage implements SystemStorage {
     final String password;
     final String migrationLocation;
     final int parallelism;
+
+    public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS ";
 
 
     @Inject
