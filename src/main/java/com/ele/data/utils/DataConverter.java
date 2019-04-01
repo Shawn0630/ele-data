@@ -1,30 +1,26 @@
 package com.ele.data.utils;
 
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DataConverter {
 
-    public static <T extends GeneratedMessageV3> List<T> parseProtoArray(InputStream stream, T.Builder builder) throws IOException {
+    public static <T extends GeneratedMessageV3> List<T> parseProtoArray(String string, T.Builder builder) throws IOException {
 
-        JsonReader reader = new JsonReader(new InputStreamReader(stream, "UTF-8"));
+        JSONArray jsonarray = new JSONArray(string);
         List<T> data = new ArrayList<>();
-
-        reader.beginObject();
-        while (reader.hasNext()) {
-            data.add(parseProto(reader.nextString(), builder));
+        for (int i = 0; i < jsonarray.length(); i++) {
+            JSONObject jsonobject = jsonarray.getJSONObject(i);
+            data.add(parseProto(jsonobject.toString(), builder));
+            builder.clear();
         }
-        reader.endObject();
-        reader.close();
 
         return data;
     }
@@ -33,4 +29,5 @@ public class DataConverter {
         JsonFormat.parser().merge(json, builder);
         return (T) builder.build();
     }
+
 }
