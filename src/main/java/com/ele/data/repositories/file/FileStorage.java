@@ -1,11 +1,10 @@
 package com.ele.data.repositories.file;
 
-import com.ele.data.repositories.SystemStorage;
-import com.ele.data.repositories.mysql.ShopRepository;
+import com.ele.data.repositories.MockStorage;
 
-public class FileStorage implements SystemStorage {
+public class FileStorage implements MockStorage {
     @Override
-    public ShopRepository getShopRepository() {
-        return null;
+    public ResultRepository resultRepository() {
+        return new FileResultRepository();
     }
 }
