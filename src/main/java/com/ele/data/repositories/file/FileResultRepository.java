@@ -10,8 +10,12 @@ import java.io.InputStream;
 
 public class FileResultRepository implements ResultRepository {
     @Override
-    public Source<ScanDenovoCandidate, NotUsed> denovo() throws IOException {
+    public Source<ScanDenovoCandidate, NotUsed> denovo() {
         InputStream denovo = FileResultRepository.class.getClassLoader().getResourceAsStream("result/Denovo.json");
-        return Source.from(DataConverter.parseProtoArray(denovo, ScanDenovoCandidate.newBuilder()));
+        try {
+            return Source.from(DataConverter.parseProtoArray(denovo, ScanDenovoCandidate.newBuilder()));
+        } catch (IOException e) {
+            return Source.failed(e);
+        }
     }
 }
