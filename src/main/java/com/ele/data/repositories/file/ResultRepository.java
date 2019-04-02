@@ -4,8 +4,6 @@ import akka.NotUsed;
 import akka.stream.javadsl.Source;
 import com.example.dto.ScanDenovoCandidate;
 
-import java.io.IOException;
-
 public interface ResultRepository {
-    Source<ScanDenovoCandidate, NotUsed> denovo() throws IOException;
+    Source<ScanDenovoCandidate, NotUsed> denovo();
 }
